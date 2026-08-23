@@ -1,0 +1,42 @@
+name: Feedback
+description: Share your thoughts about irusdk
+title: "[FEEDBACK] "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing! All feedback is welcome — what's working, what's not, what's confusing.
+
+        Thoughts on the API surface, naming, or documentation are especially useful while the SDK is
+        pre-1.0 and things can still change without breaking anyone.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: What is this about?
+      options:
+        - The Python API (naming, ergonomics, typing)
+        - Documentation
+        - The CLI
+        - Scope — what the SDK does and does not cover
+        - General impressions
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Your feedback
+      description: A clear and concise description of your feedback.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Any other context, code snippets, or screenshots related to your feedback.
+    validations:
+      required: false

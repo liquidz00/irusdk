@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://irusdk.readthedocs.io/en/latest
+    about: Browse the user guide and API reference before opening an issue.
+  - name: Managing library content (Custom Apps, Scripts, Profiles)
+    url: https://github.com/kandji-inc/iructl
+    about: irusdk does not author library content by design. Use iructl, Iru's own tool, for that.
+  - name: MacAdmins Slack
+    url: https://macadmins.slack.com
+    about: For questions and general discussion rather than a specific defect or request.

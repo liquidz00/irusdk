@@ -1,0 +1,147 @@
+name: Bug report
+description: Report a defect in irusdk
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. The more details you can provide, the faster the fix.
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: How are you using irusdk?
+      options:
+        - Python library
+        - CLI (`irusdk`)
+        - Both
+    validations:
+      required: true
+
+  - type: dropdown
+    id: client
+    attributes:
+      label: Which client?
+      description: The CLI drives the synchronous client, so pick that if you're unsure.
+      options:
+        - Synchronous (`IruClient`)
+        - Asynchronous (`AsyncIruClient`)
+        - Both
+        - Not applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the issue
+      description: What is not working as expected?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: |
+        The smallest snippet or command that triggers the problem. Replace your tenant and token with placeholders.
+      render: python
+      placeholder: |
+        from irusdk import IruClient
+
+        client = IruClient(subdomain="mycompany", token="...")
+
+        for device in client.devices.list(platform="Mac"):
+            print(device.device_name)
+
+        # Or, for a CLI issue:
+        # irusdk devices list --platform Mac
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / error message
+      description: |
+        What happened instead? Please copy and paste the exact error message or full traceback.
+      render: text
+      placeholder: |
+        irusdk._core.errors.AuthenticationError: Authentication failed (status_code: 403 | url: https://mycompany.api.kandji.io/api/v1/devices | detail: You do not have permission to perform this action.)
+    validations:
+      required: true
+
+  - type: input
+    id: irusdk-version
+    attributes:
+      label: irusdk version
+      description: 'Output of `python -c "import irusdk; print(irusdk.__version__)"`, or `irusdk --version`'
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: 'Output of `python --version`'
+      placeholder: "3.13.2"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: Where the code is running — your Mac, a CI runner, a container.
+      placeholder: "macOS 26.4.1 / ubuntu-latest / python:3.13-slim"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: region
+    attributes:
+      label: Tenant region
+      description: Only relevant if the issue involves connecting to your tenant at all.
+      options:
+        - US
+        - EU
+        - Not sure / not relevant
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Logs
+
+        `irusdk` logs to the `irusdk` logger; enable `DEBUG` to capture retries and request details:
+
+        ```python
+        import logging
+        logging.basicConfig(level=logging.DEBUG)
+        ```
+
+        **Debug output can contain sensitive information** — your API token, tenant subdomain, device
+        serial numbers, and user email addresses. Please review and redact before sharing publicly.
+
+        - **Preferred (private)**: DM the maintainer in the [MacAdmins Slack](https://macadmins.slack.com/team/U04EC7ZN4SJ).
+        - **Public**: paste below, but only after removing sensitive data.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional, public)
+      description: Paste here only if you're comfortable. Redact your token, tenant, serials, and emails first.
+      render: text
+    validations:
+      required: false

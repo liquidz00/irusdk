@@ -1,0 +1,79 @@
+name: Feature request
+description: Suggest an idea for irusdk
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion! The more context you provide, the better.
+
+        **Before you file:** `irusdk` covers the *fleet* surface of the Iru API — devices, blueprints,
+        users, and tags. It deliberately does not author library content (Custom Apps, Scripts,
+        Profiles, In-House Apps); Iru's own [`iructl`](https://github.com/kandji-inc/iructl) does that
+        job well. See [Scope](https://irusdk.readthedocs.io/en/latest/guide/scope.html).
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: What area does this touch?
+      options:
+        - Devices
+        - Blueprints
+        - Users or tags
+        - An unwrapped endpoint (Prism, vulnerabilities, threats, audit events, ADE)
+        - Core (pagination, retries, rate limiting, errors, models)
+        - CLI
+        - Documentation
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current behavior
+      description: |
+        Briefly describe how irusdk currently behaves, or what is missing, that prompted this request.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Proposed change
+      description: A description of the feature or improvement you are suggesting. Focus on what you'd like to see happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: |
+        Anything that would help others understand your proposal — a link to the relevant
+        [Iru API documentation](https://api-docs.iru.com), an example response payload, or the
+        workflow you are trying to automate.
+    validations:
+      required: false
+
+  - type: textarea
+    id: sample-code
+    attributes:
+      label: Sample code (optional)
+      description: How you would like the API to look. Pseudo-code is fine.
+      render: python
+      placeholder: |
+        for detection in client.vulnerabilities.detections(severity="critical"):
+            print(detection.cve_id, detection.device_name)
+    validations:
+      required: false
+
+  - type: input
+    id: related-issues
+    attributes:
+      label: Related issues (optional)
+      description: Link to any existing or previously closed issues related to this request.
+      placeholder: "#123, #456"
+    validations:
+      required: false
