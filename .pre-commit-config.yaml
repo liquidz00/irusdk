@@ -45,6 +45,12 @@ repos:
       # Run the formatter
       - id: ruff-format
 
+  # Validate GitHub Actions workflows
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+
   # Validate pyproject.toml
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.24.1
