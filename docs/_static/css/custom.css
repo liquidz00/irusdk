@@ -1,0 +1,11 @@
+/* Keep long endpoint paths and model field names from wrapping mid-token. */
+code.literal {
+  white-space: nowrap;
+}
+
+/* The API reference tables are wide; let them scroll rather than squeeze. */
+.wy-table-responsive table td,
+table.docutils {
+  overflow-x: auto;
+  display: block;
+}
