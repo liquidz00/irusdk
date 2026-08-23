@@ -50,6 +50,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+coverage/
 
 # Translations
 *.mo
@@ -159,4 +160,4 @@ cython_debug/
 .vscode/
 
 # Project specific
-iru-openapi.json
+spec/
