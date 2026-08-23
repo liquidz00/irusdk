@@ -1,0 +1,138 @@
+[project]
+name = "irusdk"
+dynamic = ["version"]
+readme = "README.md"
+description = "A Python SDK and CLI for the Iru (formerly Kandji) API"
+keywords = ["iru", "kandji", "mdm", "macadmin", "sdk"]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Andrew Lerman" },
+    { email = "info@liquidzoo.io" },
+]
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2.13.4",
+    "truststore>=0.10.4",
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: System Administrators",
+    "Operating System :: MacOS",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/liquidz00/irusdk"
+Documentation = "https://irusdk.readthedocs.io"
+Repository = "https://github.com/liquidz00/irusdk"
+Changelog = "https://github.com/liquidz00/irusdk/blob/main/CHANGELOG.md"
+Issues = "https://github.com/liquidz00/irusdk/issues"
+
+[project.scripts]
+irusdk = "irusdk.cli:cli"
+
+[project.optional-dependencies]
+cli = [
+    "click>=8.4.2",
+    "rich>=15.0.0",
+]
+docs = [
+    "autodoc-pydantic>=2.2.0",
+    "myst-parser>=4",
+    "shibuya>=2026.7.12",
+    "sphinx>=8",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-design>=0.7.0",
+    "sphinx-iconify>=0.3.0",
+]
+dev = [
+    "irusdk[cli,docs]",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=7.0.0",
+    "respx>=0.22.0",
+    "ruff>=0.16.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/irusdk/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/irusdk"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+exclude = ["docs"]
+force-exclude = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
+docstring-code-line-length = "dynamic"
+
+[tool.ruff.lint]
+select = [
+    "E101",
+    "F401",
+    "F403",
+    "I001",
+    "N801",
+    "N802",
+    "N806"
+]
+ignore = ["E722"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*.py" = ["N806"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
+minversion = "6.0"
+pythonpath = ["."]
+addopts = [
+    "--durations=5",
+    "--color=yes",
+    "--cov=src",
+    "--cov-report=html:coverage/htmlcov",
+    "--cov-report=term-missing",
+]
+testpaths = ["./tests"]
+filterwarnings = ["error"]
+markers = [
+    "unit: marks tests as unit tests",
+    "integration: marks tests that require a live Iru tenant",
+]
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "\\.\\.\\.",
+]
