@@ -1,6 +1,6 @@
 """Models for the tag endpoints."""
 
-from . import Model
+from .base import Model
 
 
 class Tag(Model):

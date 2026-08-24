@@ -5,7 +5,7 @@ here is the read-only shape used when reporting what is assigned to a blueprint 
 device.
 """
 
-from . import Model
+from .base import Model
 
 
 class LibraryItem(Model):

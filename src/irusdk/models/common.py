@@ -1,6 +1,6 @@
 """Small models shared across several endpoint families."""
 
-from . import Model
+from .base import Model
 
 
 class UserRef(Model):

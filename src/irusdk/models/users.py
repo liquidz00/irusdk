@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from . import Model
+from .base import BlankAsNone, Model
 
 
 class UserIntegration(Model):
@@ -42,8 +42,8 @@ class User(Model):
     email: str | None = None
     active: bool | None = None
     archived: bool | None = None
-    department: str | None = None
-    job_title: str | None = None
+    department: BlankAsNone = None
+    job_title: BlankAsNone = None
     device_count: int | None = None
     integration: UserIntegration | None = None
     deprecated_user_id: str | None = None

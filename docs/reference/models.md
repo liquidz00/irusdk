@@ -6,10 +6,25 @@ fields are preserved, because Iru adds fields between releases and a model that 
 break the SDK on the vendor's schedule rather than ours. Do not rely on a field being present.
 :::
 
+Every model is re-exported from `irusdk.models`, so the submodule layout is an implementation
+detail:
+
+```python
+from irusdk.models import Blueprint, Device
+```
+
+Some models add fields derived from the wire data — {attr}`~irusdk.models.devices.Device.os_major`
+for counting devices by OS release without comparing version strings, and
+{attr}`~irusdk.models.blueprints.Blueprint.present_percent` for how much of a blueprint is
+reporting in. Those appear in `model_dump()`; the few that depend on the current clock, such as
+{attr}`~irusdk.models.devices.Device.days_since_check_in`, are plain properties and do not.
+
 ## Base classes
 
 ```{eval-rst}
 .. autopydantic_model:: irusdk.models.Model
+
+.. autoproperty:: irusdk.models.Model.unknown_fields
 
 .. autopydantic_model:: irusdk.models.UpstreamModel
 ```
@@ -18,12 +33,22 @@ break the SDK on the vendor's schedule rather than ours. Do not rely on a field 
 
 ```{eval-rst}
 .. autopydantic_model:: irusdk.models.devices.Device
+
+.. autoproperty:: irusdk.models.devices.Device.os_major
+
+.. autoproperty:: irusdk.models.devices.Device.os_version_info
+
+.. autoproperty:: irusdk.models.devices.Device.days_since_check_in
 ```
 
 ## Blueprints
 
 ```{eval-rst}
 .. autopydantic_model:: irusdk.models.blueprints.Blueprint
+
+.. autoproperty:: irusdk.models.blueprints.Blueprint.present_count
+
+.. autoproperty:: irusdk.models.blueprints.Blueprint.present_percent
 
 .. autopydantic_model:: irusdk.models.blueprints.EnrollmentCode
 ```
