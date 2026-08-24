@@ -3,6 +3,9 @@
 These live here rather than in ``__init__.py`` so that the package's ``__init__`` can be nothing
 but re-exports. A submodule importing its base from the package it is re-exported into is a
 circular import waiting to happen.
+
+:data:`BlankAsNone` annotates a string field where the API sends ``""`` rather than ``null`` for an
+absent value, so a falsiness check on it means what it looks like.
 """
 
 from typing import Annotated, Any
@@ -20,7 +23,6 @@ def _blank_to_none(value: Any) -> Any:
 
 # Defined ahead of the classes because the annotation below needs it at import time.
 BlankAsNone = Annotated[str | None, BeforeValidator(_blank_to_none)]
-"""A string field where the API sends ``""`` instead of ``null`` for an absent value."""
 
 
 class Model(BaseModel):
