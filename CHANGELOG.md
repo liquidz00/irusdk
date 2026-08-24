@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.0] - 2026-08-24
+
 ### Added
 
 - **Sync and async clients** — `IruClient` and `AsyncIruClient`, usable directly or as context
@@ -21,7 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Four services**, each with a sync class and an async twin: `devices`, `blueprints`, `users`,
   and `tags`.
 - **Pydantic models** for every response shape above, permitting unknown fields so a new API field
-  does not break the SDK.
+  does not break the SDK. Every model is re-exported from `irusdk.models`, and `Model.unknown_fields`
+  reports anything the API returned that the model does not declare.
+- **Derived model fields** — `Device.os_major`, `Device.os_version_info`,
+  `Device.days_since_check_in`, `Blueprint.present_count`, and `Blueprint.present_percent`.
+- **Blank-string normalization** on fields where the API sends `""` rather than `null`
+  (`Device.asset_tag`, `Device.lost_mode_status`, `User.department`, `User.job_title`, and
+  `Blueprint.description`/`icon`/`color`), so a falsiness check means what it looks like.
 - **CLI** (`irusdk`, via the `cli` extra) with `devices`, `blueprints`, `users`, and `tags` command
   groups, rendering Rich tables or JSON.
 - Typed exception hierarchy under `IruError`, TLS via the OS trust store, and a `py.typed` marker.
