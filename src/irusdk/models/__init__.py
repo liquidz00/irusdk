@@ -14,8 +14,11 @@ which submodule it lives in. The base classes and shared field types are in :mod
 from .base import BlankAsNone, Model, UpstreamModel
 from .blueprints import Blueprint, EnrollmentCode
 from .common import BlueprintRef, UserRef
+from .custom_profiles import CustomProfile
+from .custom_scripts import CustomScript, ExecutionFrequency
 from .devices import Device
 from .library import LibraryItem
+from .self_service import SelfServiceCategory
 from .tags import Tag
 from .users import User, UserIntegration
 
@@ -23,10 +26,14 @@ __all__ = [
     "BlankAsNone",
     "Blueprint",
     "BlueprintRef",
+    "CustomProfile",
+    "CustomScript",
     "Device",
     "EnrollmentCode",
+    "ExecutionFrequency",
     "LibraryItem",
     "Model",
+    "SelfServiceCategory",
     "Tag",
     "UpstreamModel",
     "User",

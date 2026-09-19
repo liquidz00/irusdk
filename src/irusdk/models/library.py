@@ -1,8 +1,8 @@
 """Models for library items as they appear from the fleet side.
 
-This SDK does not author library content — see the scope note in the documentation. What remains
-here is the read-only shape used when reporting what is assigned to a blueprint or installed on a
-device.
+This is the read-only summary shape used when reporting what is assigned to a blueprint or
+installed on a device. The full, authorable models live beside their endpoints — see
+:mod:`irusdk.models.custom_scripts`.
 """
 
 from .base import Model

@@ -21,12 +21,14 @@ def build_headers(token: str, config: IruConfig) -> dict[str, str]:
     :type token: str
     :param config: The client configuration.
     :type config: IruConfig
+    Content-Type is deliberately absent: httpx sets it per request, and a client-wide default
+    overrides the multipart boundary the custom profile upload depends on.
+
     :rtype: dict[str, str]
     """
     return {
         "Authorization": f"Bearer {token}",
         "Accept": "application/json",
-        "Content-Type": "application/json",
         "User-Agent": config.user_agent,
     }
 

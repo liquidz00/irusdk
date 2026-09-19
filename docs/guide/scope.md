@@ -1,76 +1,87 @@
-# Scope: fleet, not content
+# Scope: fleet, and the content that configures it
 
-`irusdk` is a client for **querying and acting on an Iru fleet**: devices, their state, the actions
-you take against them, and the blueprints, users, and tags that organise them.
+`irusdk` is a client for **querying and acting on an Iru fleet** — devices, their state, the
+actions you take against them, and the blueprints, users, and tags that organise them — and, as of
+0.2.0, for **authoring the library content** that configures it.
 
-It deliberately does **not** author library content — Custom Apps, Custom Scripts, Custom Profiles,
-or In-House Apps. For that, use [`iructl`](https://github.com/kandji-inc/iructl), Iru's own tool.
+Authoring support is landing one resource at a time:
 
-## Why the split
-
-The two problems are genuinely different, and the vendor already solves one of them well.
-
-Authoring library content is a **content lifecycle** problem: you want the payloads in version
-control, reviewed in pull requests, and synced to your tenant. `iructl` is built for exactly that —
-a local repository of profiles, scripts, and apps, YAML and plist round-tripping, package uploads
-through presigned S3 URLs, and declarative blueprint assignment.
-
-Managing a fleet is a **query and act** problem: which Macs are on an old OS, which are missing,
-which are out of compliance, what is installed where, and lock or wipe the one that just walked out
-of the building. That is read-heavy, pagination-heavy, and spans most of the API surface — and it is
-what this SDK is for.
-
-There is also a durability argument. `iructl` is maintained by Iru, so when the API changes for
-Custom Apps, the people who changed it ship the fix. A third-party SDK cannot match that in the
-vendor's own domain, and pretending otherwise would serve nobody. Anywhere the vendor ships a
-supported tool, that tool should win.
-
-## Using both
-
-They compose cleanly, and there is no reason to pick one:
-
-```console
-# iructl authors and syncs your library content
-$ iructl profile pull --all
-$ iructl script push --all
-```
-
-```python
-# irusdk queries and drives the fleet
-from irusdk import IruClient
-
-client = IruClient(subdomain="mycompany", token="...")
-
-stale = [d for d in client.devices.list(platform="Mac") if d.os_version.startswith("13.")]
-for device in stale:
-    print(device.serial_number, device.device_name, device.blueprint_name)
-```
-
-## What that means in practice
-
-| Task | Tool |
+| Library item | Authoring support |
 | --- | --- |
-| Version-control your Custom Profiles | `iructl` |
-| Upload a new Custom App package | `iructl` |
-| Declaratively assign library items to blueprints | `iructl` |
-| Find every Mac on an outdated OS | `irusdk` |
-| Report FileVault or compliance state across the fleet | `irusdk` |
-| Lock, erase, or restart a device | `irusdk` |
-| Audit which users have how many devices | `irusdk` |
-| Build a dashboard, a Slack bot, or a scheduled report | `irusdk` |
+| Custom Scripts | available |
+| Custom Profiles | available |
+| Self Service categories | available (read-only; Iru exposes no write) |
+| Custom Apps | planned |
+| In-House Apps | not planned |
+
+## The line moved in 0.2.0
+
+Earlier releases deliberately left library authoring to
+[`iructl`](https://github.com/kandji-inc/iructl), Iru's own tool, on the reasoning that content
+authoring and fleet querying are different problems and the vendor already solved the first one.
+
+The querying half of that argument still holds. The authoring half turned out to rest on an
+assumption that does not survive contact with a GitOps repository: that the hard part of authoring
+is talking to the API.
+
+It is not. The hard part is the **repository side** — deciding what a component looks like on disk,
+which fields a human owns and which the vendor assigns, how a pull reconciles with a working tree,
+and what a reviewer sees in a diff. Those are decisions a repository has to make for itself, and
+they are not decisions a general-purpose vendor tool can make on any particular repository's
+behalf. A tool that is right for every layout is not especially right for yours.
+
+So the split changed shape. It is no longer *fleet here, content there*. It is:
+
+- **`irusdk` owns the API.** Typed calls, one shape for sync and async, pagination, retries,
+  errors. It has no opinion about your filesystem and never touches it.
+- **Your tooling owns the repository.** Layout, identity, formatting, validation, reconciliation.
+
+That seam is the useful one, because it puts each decision where the information to make it is.
+
+## The cost, stated plainly
+
+The durability argument against this has not gone away, and it is worth keeping visible rather than
+quietly dropping now that it is inconvenient:
+
+> `iructl` is maintained by Iru. When the API changes for Custom Apps, the people who changed it
+> ship the fix. A third-party SDK cannot match that in the vendor's own domain.
+
+That remains true. Adopting library authoring here means accepting on-call for Iru's API drift in a
+surface the vendor also ships a tool for. It is a real cost, taken deliberately, in exchange for
+owning the repository-side decisions outright.
+
+If you do not need repository-side control, `iructl` is still the shorter path, and this page is
+not an argument that you should switch.
 
 ## Blueprints sit in both
 
-Blueprints are the one thing both tools touch, for different reasons.
-
-`iructl` assigns library items *to* blueprints as part of the content lifecycle. `irusdk` reads
-blueprints as **fleet context** — every device carries a `blueprint_id` and `blueprint_name`, and
-blueprint is a primary device filter:
+Blueprints are fleet context and content target at once. Every device carries a `blueprint_id` and
+`blueprint_name`, and blueprint is a primary device filter:
 
 ```python
 for device in client.devices.list(blueprint_id="ab102b9d-..."):
     ...
 ```
 
-So blueprint listing, reading, and membership live here. Authoring the content that goes *into* a
-blueprint does not.
+Blueprint listing, reading, and membership live here. Declarative assignment of library items to
+blueprints — the part that belongs to a repository's sync step — does not, and is left to whatever
+tooling owns your repository.
+
+## Using both
+
+They still compose, and while authoring support is incomplete there is good reason to:
+
+```console
+# iructl for what irusdk does not author yet
+$ iructl app pull --all
+```
+
+```python
+# irusdk for the API, fleet or content
+from irusdk import IruClient
+
+client = IruClient(subdomain="mycompany", token="...")
+
+for script in client.custom_scripts.list():
+    print(script.id, script.name, script.execution_frequency)
+```

@@ -8,9 +8,10 @@ Kandji is now Iru. The API still serves from `*.api.kandji.io`, and this SDK fol
 :::
 
 :::{important}
-`irusdk` does not author library content. For version-controlling Custom Profiles, Scripts, and
-Apps, use [`iructl`](https://github.com/kandji-inc/iructl), Iru's own tool — see {doc}`guide/scope`.
-The two compose: `iructl` manages what you deploy, `irusdk` tells you what your fleet is doing.
+Library authoring arrived in 0.2.0 and is landing one resource at a time — Custom Scripts,
+Custom Profiles and Self Service categories today, Custom Apps next. Until then
+[`iructl`](https://github.com/kandji-inc/iructl) still covers what this SDK does not, and the two
+compose. See {doc}`guide/scope` for where the line now falls and what it costs.
 :::
 
 ::::{grid} 1 1 2 2
@@ -48,17 +49,17 @@ Query your tenant from the terminal with `irusdk`.
 :link: guide/scope
 :link-type: doc
 
-What this SDK covers, what `iructl` covers, and why the line falls where it does.
+What this SDK covers, what it does not yet, and why the line moved in 0.2.0.
 :::
 
 ::::
 
 ## Why this SDK
 
-Nothing currently covers the fleet surface of the Iru API from Python. The `kandji` package on PyPI
-is a thin wrapper that has not been updated in four years, and `iructl` — deliberately — reaches
-only the five library-content endpoints it needs. Devices, device actions, Prism, users, and tags
-have had no client at all.
+Nothing currently covers the Iru API from Python as a general client. The `kandji` package on PyPI
+is a thin wrapper that has not been updated in four years, and `iructl` reaches only the
+library-content endpoints it needs, behind a CLI built around its own repository layout. Devices,
+device actions, Prism, users, and tags have had no client at all.
 
 `irusdk` fills that gap:
 

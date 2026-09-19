@@ -46,6 +46,18 @@ def test_idempotency_can_be_overridden() -> None:
     assert RequestSpec(method="POST", path="/x", idempotent=True).is_idempotent is True
 
 
+def test_json_and_files_are_mutually_exclusive() -> None:
+    with pytest.raises(ValueError, match="either json or data/files"):
+        RequestSpec(method="POST", path="/x", json={"a": 1}, files={"f": ("n", b"")})
+
+
+def test_with_params_carries_the_body_through() -> None:
+    spec = RequestSpec(method="POST", path="/x", data={"name": "n"}, files={"f": ("n", b"")})
+
+    assert spec.with_params({"page": 2}).data == {"name": "n"}
+    assert spec.with_params({"page": 2}).files == {"f": ("n", b"")}
+
+
 def test_with_params_merges_over_existing_ones() -> None:
     spec = RequestSpec(method="GET", path="/x", params={"platform": "Mac", "limit": 10})
 

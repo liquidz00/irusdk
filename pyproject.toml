@@ -76,6 +76,12 @@ path = "src/irusdk/__about__.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/irusdk"]
 
+[tool.uv]
+# Supply-chain cooldown: only take releases that have been on PyPI for a week.
+# Managed Macs get this from /etc/uv/uv.toml but CI does not, so declaring it here
+# stops the two from writing different [options] blocks into uv.lock.
+exclude-newer = "7 days"
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
