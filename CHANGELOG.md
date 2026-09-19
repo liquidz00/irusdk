@@ -9,6 +9,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Library-content authoring**, the scope this SDK previously left to `iructl`. Three new
+  services, each with a sync class and an async twin: `custom_scripts`, `custom_profiles`, and
+  `self_service`.
+- **`custom_scripts`** — full CRUD. The Self Service combinations Iru rejects (`no_enforcement`
+  without Self Service, Self Service without a category) raise `ValueError` at spec construction
+  rather than arriving as a 400.
+- **`custom_profiles`** — full CRUD. `create` and `update` take the `.mobileconfig` as `bytes`;
+  reading the file is the caller's business, since `_endpoints` performs no I/O. Omitting the
+  payload on `update` leaves the deployed profile alone, which is how a rename or a platform
+  change is made without reuploading it.
+- **`self_service.categories()`** — read-only; Iru exposes no write. Resolves the category id a
+  Self Service script has to name.
+- **Multipart request support** — `RequestSpec` gains `data` and `files`, threaded through both
+  transports. `json` and `data`/`files` are mutually exclusive, enforced at construction so the
+  two transports cannot disagree.
+- **Models** `CustomScript`, `CustomProfile`, `SelfServiceCategory`, and the `ExecutionFrequency`
+  enum, all re-exported from `irusdk.models`. `CustomScript.remediation_script` is blank-string
+  normalized; the API sends `""` rather than `null`.
+
+### Fixed
+
+- `Content-Type: application/json` is no longer set as a client-wide default header. It overrode
+  the per-request `multipart/form-data` boundary httpx generates, which would have sent every
+  custom profile upload out mislabelled. httpx now sets the header from the body type, so JSON
+  requests are unaffected and bodyless requests no longer carry a spurious one.
+
+### Changed
+
+- **Scope.** Earlier releases left library authoring to `iructl` on the reasoning that content
+  authoring and fleet querying are different problems. The querying half still holds; the
+  authoring half rested on the assumption that the hard part of authoring is talking to the API,
+  and it is not — it is the repository side, which is a decision a repository has to make for
+  itself. `irusdk` now owns the API and has no opinion about your filesystem. The durability cost
+  of that (Iru maintains `iructl`, so when the API changes they ship the fix) is real and is
+  documented rather than dropped. See the scope guide.
+- Custom Apps and In-House Apps remain unauthored here; `iructl` still covers them.
+
+
 ## [v0.1.0] - 2026-08-24
 
 ### Added
