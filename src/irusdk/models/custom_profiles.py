@@ -21,6 +21,10 @@ class CustomProfile(Model):
     :ivar runs_on_ipad: Whether the profile targets iPad.
     :ivar runs_on_tv: Whether the profile targets Apple TV.
     :ivar runs_on_vision: Whether the profile targets Apple Vision Pro.
+    :ivar runs_on_android: Always ``False``. Iru returns it from a serializer it shares with
+        other library items; a ``.mobileconfig`` cannot target Android, so there is no
+        matching argument on create or update.
+    :ivar runs_on_windows: Always ``False``, for the same reason as :attr:`runs_on_android`.
     """
 
     id: str | None = None
@@ -35,3 +39,5 @@ class CustomProfile(Model):
     runs_on_ipad: bool | None = None
     runs_on_tv: bool | None = None
     runs_on_vision: bool | None = None
+    runs_on_android: bool | None = None
+    runs_on_windows: bool | None = None

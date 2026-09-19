@@ -30,6 +30,8 @@ def _profile(index: int, **overrides: object) -> dict:
         "runs_on_ipad": False,
         "runs_on_tv": False,
         "runs_on_vision": False,
+        "runs_on_android": False,
+        "runs_on_windows": False,
         "created_at": "2023-03-10T19:27:58.677287Z",
         "updated_at": "2023-03-10T20:06:28.622392Z",
     }
@@ -66,6 +68,18 @@ def test_get_returns_the_iru_assigned_identifier(any_client: ClientAdapter) -> N
 
     assert profile.mdm_identifier == "com.kandji.profile.custom.profile-1"
     assert profile.runs_on_mac is True
+
+
+@respx.mock
+def test_declares_every_platform_flag_iru_returns(any_client: ClientAdapter) -> None:
+    """A live tenant returns android and windows flags; undeclared, they land in extras."""
+    respx.get(f"{PROFILES}/profile-1").mock(return_value=httpx.Response(200, json=_profile(1)))
+
+    profile = any_client.call(any_client.client.custom_profiles.get, "profile-1")
+
+    assert profile.runs_on_android is False
+    assert profile.runs_on_windows is False
+    assert profile.unknown_fields == {}
 
 
 @respx.mock

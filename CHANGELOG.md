@@ -32,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `CustomProfile` now declares `runs_on_android` and `runs_on_windows`. A live tenant returns
+  both on every profile, always `False`, from a serializer Iru shares across library items.
+  They were landing in `unknown_fields`. There is no matching argument on `create` or `update`:
+  a `.mobileconfig` cannot target either platform.
 - `Content-Type: application/json` is no longer set as a client-wide default header. It overrode
   the per-request `multipart/form-data` boundary httpx generates, which would have sent every
   custom profile upload out mislabelled. httpx now sets the header from the body type, so JSON
