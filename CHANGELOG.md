@@ -51,6 +51,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   of that (Iru maintains `iructl`, so when the API changes they ship the fix) is real and is
   documented rather than dropped. See the scope guide.
 - Custom Apps and In-House Apps remain unauthored here; `iructl` still covers them.
+- Documented what Iru rewrites on store, verified against a live tenant: three top-level profile
+  keys (`PayloadIdentifier`, `PayloadDisplayName`, and `PayloadUUID`, the last regenerated on
+  every update so macOS reinstalls), and the trailing newline on script bodies. Everything inside
+  `PayloadContent` is stored verbatim.
 
 
 ## [v0.1.0] - 2026-08-24

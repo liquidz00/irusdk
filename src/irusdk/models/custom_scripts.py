@@ -26,7 +26,8 @@ class CustomScript(Model):
         :class:`ExecutionFrequency` so a frequency Iru adds later is carried through instead of
         raising; compare against the enum's values.
     :ivar restart: Whether the device restarts after the script runs.
-    :ivar script: The audit script's contents.
+    :ivar script: The audit script's contents. Iru strips the trailing newline on store, so this
+        rarely matches a file read from disk byte for byte; compare with ``.rstrip()``.
     :ivar remediation_script: The remediation script's contents. The API sends ``""`` when
         there is none, which :data:`~irusdk.models.base.BlankAsNone` collapses to ``None``.
     :ivar created_at: When the script was created.

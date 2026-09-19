@@ -11,7 +11,11 @@ class CustomProfile(Model):
         sent with the request.
     :ivar name: The profile's name.
     :ivar active: Whether the profile is active.
-    :ivar profile: The ``.mobileconfig`` payload, as XML.
+    :ivar profile: The ``.mobileconfig`` payload, as XML. Iru owns three top-level keys and
+        rewrites them on every write: ``PayloadIdentifier`` (from :attr:`id`),
+        ``PayloadDisplayName`` (from :attr:`name`), and ``PayloadUUID``, which is regenerated
+        even by a metadata-only update so macOS reinstalls the profile. Everything inside
+        ``PayloadContent`` is stored verbatim, global-variable tokens included.
     :ivar mdm_identifier: The profile's top-level ``PayloadIdentifier``, which Iru derives from
         :attr:`id` as ``com.kandji.profile.custom.<id>``. It is assigned, not authored.
     :ivar created_at: When the profile was created.
