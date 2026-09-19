@@ -10,6 +10,7 @@ from ._core.urls import Region, resolve_base_url
 from ._transport.async_transport import AsyncTransport
 from ._transport.sync_transport import SyncTransport
 from .services.blueprints import AsyncBlueprintsAPI, BlueprintsAPI
+from .services.custom_scripts import AsyncCustomScriptsAPI, CustomScriptsAPI
 from .services.devices import AsyncDevicesAPI, DevicesAPI
 from .services.tags import AsyncTagsAPI, TagsAPI
 from .services.users import AsyncUsersAPI, UsersAPI
@@ -48,6 +49,7 @@ class IruClient:
     :ivar blueprints: Blueprint operations.
     :ivar users: User operations.
     :ivar tags: Tag operations.
+    :ivar custom_scripts: Custom script operations.
     """
 
     def __init__(
@@ -69,6 +71,7 @@ class IruClient:
         self.blueprints = BlueprintsAPI(self._transport)
         self.users = UsersAPI(self._transport)
         self.tags = TagsAPI(self._transport)
+        self.custom_scripts = CustomScriptsAPI(self._transport)
 
     def close(self) -> None:
         """Release the underlying connection pool. Idempotent, and optional."""
@@ -118,6 +121,7 @@ class AsyncIruClient:
     :ivar blueprints: Blueprint operations.
     :ivar users: User operations.
     :ivar tags: Tag operations.
+    :ivar custom_scripts: Custom script operations.
     """
 
     def __init__(
@@ -139,6 +143,7 @@ class AsyncIruClient:
         self.blueprints = AsyncBlueprintsAPI(self._transport)
         self.users = AsyncUsersAPI(self._transport)
         self.tags = AsyncTagsAPI(self._transport)
+        self.custom_scripts = AsyncCustomScriptsAPI(self._transport)
 
     async def aclose(self) -> None:
         """Release the underlying connection pool. Idempotent, and optional."""

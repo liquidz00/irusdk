@@ -76,6 +76,16 @@ Read-only, as they appear on a blueprint or device. This SDK does not author lib
 .. autopydantic_model:: irusdk.models.library.LibraryItem
 ```
 
+## Custom scripts
+
+```{eval-rst}
+.. autopydantic_model:: irusdk.models.custom_scripts.CustomScript
+
+.. autoclass:: irusdk.models.custom_scripts.ExecutionFrequency
+   :members:
+   :undoc-members:
+```
+
 ## Shared
 
 ```{eval-rst}

@@ -8,10 +8,10 @@ users, and tags that organise them.
 > Kandji is now Iru. The API still serves from `*.api.kandji.io`, and this SDK follows suit.
 
 > [!IMPORTANT]
-> `irusdk` does not author library content. To version-control Custom Profiles, Scripts, and Apps,
-> use [`iructl`](https://github.com/kandji-inc/iructl) — Iru's own tool, which does that job well.
-> The two compose: `iructl` manages what you deploy, `irusdk` tells you what your fleet is doing.
-> See [Scope](#scope) below.
+> Library authoring arrived in 0.2.0 and is landing one resource at a time — Custom Scripts today,
+> Custom Profiles and Self Service categories next, Custom Apps after that. Until then
+> [`iructl`](https://github.com/kandji-inc/iructl) still covers what this SDK does not, and the two
+> compose. See [Scope](#scope) below.
 
 ## Features
 
@@ -105,31 +105,42 @@ Every read command takes `--json`.
 
 ## Scope
 
-`irusdk` covers the **fleet** surface of the Iru API. It deliberately leaves library-content
-authoring to [`iructl`](https://github.com/kandji-inc/iructl).
+`irusdk` covers the Iru API: the **fleet** surface — devices, actions, Prism, users, tags,
+blueprints — and, from 0.2.0, **library-content authoring**.
 
-The two problems are different, and the vendor already solves one of them well. Authoring library
-content is a content-lifecycle problem — payloads in git, reviewed in PRs, synced to your tenant,
-packages uploaded through presigned S3 URLs. That is what `iructl` is built for. Managing a fleet is
-a query-and-act problem — which Macs are on an old OS, which are missing, what is installed where,
-lock the one that just walked out the door. That is what this is built for.
+| Library item | Authoring support |
+| --- | --- |
+| Custom Scripts | available |
+| Custom Profiles | in progress |
+| Self Service categories | in progress |
+| Custom Apps | planned |
+| In-House Apps | not planned |
 
-There is also a durability argument: `iructl` is maintained by Iru, so when the API changes for
-Custom Apps, the people who changed it ship the fix. Anywhere the vendor ships a supported tool,
-that tool should win.
+Earlier releases left authoring to [`iructl`](https://github.com/kandji-inc/iructl) on the
+reasoning that content authoring and fleet querying are different problems. The querying half of
+that still holds. The authoring half rested on the assumption that the hard part of authoring is
+talking to the API — and it is not. The hard part is the repository side: what a component looks
+like on disk, which fields a human owns and which the vendor assigns, how a pull reconciles with a
+working tree. Those are decisions a repository has to make for itself.
+
+So the seam moved. `irusdk` owns the API and has no opinion about your filesystem; your own tooling
+owns the repository.
+
+The durability argument against this is real and is worth keeping visible: `iructl` is maintained
+by Iru, so when the API changes, the people who changed it ship the fix. Adopting authoring here
+means accepting on-call for that drift. If you do not need repository-side control, `iructl` is
+still the shorter path.
 
 | Task | Tool |
 | --- | --- |
-| Version-control Custom Profiles, Scripts, Apps | `iructl` |
 | Upload a Custom App package | `iructl` |
 | Declaratively assign library items to blueprints | `iructl` |
+| Read or author Custom Scripts | `irusdk` |
 | Find every Mac on an outdated OS | `irusdk` |
 | Report FileVault or compliance state across the fleet | `irusdk` |
 | Lock, erase, or restart a device | `irusdk` |
 | Build a dashboard, Slack bot, or scheduled report | `irusdk` |
 
-Blueprints appear in both, for different reasons: `iructl` assigns content *to* them, while
-`irusdk` reads them as fleet context, since every device carries a `blueprint_id`.
 
 ## Documentation
 
