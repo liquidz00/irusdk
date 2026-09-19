@@ -29,6 +29,20 @@ def test_sends_bearer_token_and_user_agent(any_client: ClientAdapter) -> None:
 
 
 @respx.mock
+def test_sets_json_content_type_only_when_there_is_a_json_body(any_client: ClientAdapter) -> None:
+    get = respx.get(DEVICE_URL).mock(return_value=httpx.Response(200, json=device_payload(1)))
+    post = respx.post(f"{BASE_URL}/api/v1/tags").mock(
+        return_value=httpx.Response(201, json={"id": "tag-1", "name": "n"})
+    )
+
+    any_client.call(any_client.client.devices.get, "device-0001")
+    any_client.call(any_client.client.tags.create, "n")
+
+    assert "content-type" not in get.calls.last.request.headers
+    assert post.calls.last.request.headers["content-type"] == "application/json"
+
+
+@respx.mock
 def test_parses_response_into_model(any_client: ClientAdapter) -> None:
     respx.get(DEVICE_URL).mock(return_value=httpx.Response(200, json=device_payload(1)))
 

@@ -9,7 +9,7 @@ Authoring support is landing one resource at a time:
 | Library item | Authoring support |
 | --- | --- |
 | Custom Scripts | available |
-| Custom Profiles | in progress |
+| Custom Profiles | available |
 | Self Service categories | in progress |
 | Custom Apps | planned |
 | In-House Apps | not planned |

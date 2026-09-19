@@ -35,7 +35,10 @@ class RequestSpec(Generic[T]):
     :ivar method: The HTTP method.
     :ivar path: The path below the tenant base URL, beginning with a slash.
     :ivar params: Query parameters.
-    :ivar json: The request body, serialized as JSON.
+    :ivar json: The request body, serialized as JSON. Mutually exclusive with ``data``/``files``.
+    :ivar data: Form fields, for the endpoints that take multipart rather than JSON.
+    :ivar files: File parts, in any shape httpx accepts. Iru takes the custom profile payload
+        this way rather than as a JSON string.
     :ivar model: A Pydantic model to validate the response against. When ``None`` the decoded
         JSON is returned as-is.
     :ivar unwrap: The envelope key holding the payload. ``None`` means the body is the payload.
@@ -47,9 +50,15 @@ class RequestSpec(Generic[T]):
     path: str
     params: dict[str, Any] | None = None
     json: Any | None = None
+    data: dict[str, Any] | None = None
+    files: Any | None = None
     model: type[T] | None = None
     unwrap: str | None = None
     idempotent: bool | None = None
+
+    def __post_init__(self) -> None:
+        if self.json is not None and (self.data is not None or self.files is not None):
+            raise ValueError("RequestSpec takes either json or data/files, not both")
 
     @property
     def is_idempotent(self) -> bool:
@@ -77,6 +86,8 @@ class RequestSpec(Generic[T]):
             path=self.path,
             params={**(self.params or {}), **extra},
             json=self.json,
+            data=self.data,
+            files=self.files,
             model=self.model,
             unwrap=self.unwrap,
             idempotent=self.idempotent,

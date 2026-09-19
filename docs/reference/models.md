@@ -86,6 +86,12 @@ Read-only, as they appear on a blueprint or device. This SDK does not author lib
    :undoc-members:
 ```
 
+## Custom profiles
+
+```{eval-rst}
+.. autopydantic_model:: irusdk.models.custom_profiles.CustomProfile
+```
+
 ## Shared
 
 ```{eval-rst}

@@ -183,6 +183,8 @@ class AsyncTransport:
                     spec.path,
                     params=spec.params or None,
                     json=spec.json,
+                    data=spec.data,
+                    files=spec.files,
                     **kwargs,
                 )
             except httpx.RequestError as exc:
