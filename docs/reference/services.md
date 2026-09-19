@@ -62,3 +62,13 @@ on. The async twins carry the same methods and signatures; only `await` and `asy
 .. autoclass:: irusdk.services.custom_profiles.AsyncCustomProfilesAPI
    :members:
 ```
+
+## Self Service
+
+```{eval-rst}
+.. autoclass:: irusdk.services.self_service.SelfServiceAPI
+   :members:
+
+.. autoclass:: irusdk.services.self_service.AsyncSelfServiceAPI
+   :members:
+```

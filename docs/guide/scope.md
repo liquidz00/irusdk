@@ -10,7 +10,7 @@ Authoring support is landing one resource at a time:
 | --- | --- |
 | Custom Scripts | available |
 | Custom Profiles | available |
-| Self Service categories | in progress |
+| Self Service categories | available (read-only; Iru exposes no write) |
 | Custom Apps | planned |
 | In-House Apps | not planned |
 

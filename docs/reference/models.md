@@ -92,6 +92,12 @@ Read-only, as they appear on a blueprint or device. This SDK does not author lib
 .. autopydantic_model:: irusdk.models.custom_profiles.CustomProfile
 ```
 
+## Self Service
+
+```{eval-rst}
+.. autopydantic_model:: irusdk.models.self_service.SelfServiceCategory
+```
+
 ## Shared
 
 ```{eval-rst}

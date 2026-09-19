@@ -18,6 +18,7 @@ from .custom_profiles import CustomProfile
 from .custom_scripts import CustomScript, ExecutionFrequency
 from .devices import Device
 from .library import LibraryItem
+from .self_service import SelfServiceCategory
 from .tags import Tag
 from .users import User, UserIntegration
 
@@ -32,6 +33,7 @@ __all__ = [
     "ExecutionFrequency",
     "LibraryItem",
     "Model",
+    "SelfServiceCategory",
     "Tag",
     "UpstreamModel",
     "User",
