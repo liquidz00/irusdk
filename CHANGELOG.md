@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`custom_apps` writes** — `upload`, `create` and `update`, sync and async. An app is
+  written in three steps: reserve a presigned POST, stream the installer to object storage,
+  then send Iru the `file_key` that comes back.
+- `CustomAppsAPI.upload` streams from disk on a **bare client that carries no Iru
+  credentials**. The presigned policy authenticates the upload by itself, and the store is
+  not the tenant, so sending the token there would hand a third party fleet-wide write
+  access for nothing. Its own timeout has no write limit, because the client default governs
+  an API call rather than a multi-hundred-megabyte body.
+- **Model** `CustomAppUpload`, re-exported from `irusdk.models`.
+- **Error** `PayloadTransferError`, raised when object storage refuses the installer. It is
+  not an `APIResponseError`: the failing request went to the store, so its status and body
+  are the store's rather than the tenant's.
+- `create` and `update` reject the field combinations Iru answers with an unhelpful 400 --
+  an audit script without `continuously_enforce`, a `zip` app with no `unzip_location`,
+  `no_enforcement` outside Self Service, and Self Service with no category. On an update
+  each check is skipped when the field governing it was not supplied, since Iru still holds
+  the old value and guessing it would reject valid calls.
+
 ## [v0.3.0] - 2026-09-25
 
 ### Added
