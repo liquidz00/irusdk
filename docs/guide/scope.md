@@ -11,7 +11,7 @@ Authoring support is landing one resource at a time:
 | Custom Scripts | available |
 | Custom Profiles | available |
 | Self Service categories | available (read-only; Iru exposes no write) |
-| Custom Apps | planned |
+| Custom Apps | read-only (upload needs a presigned POST; `iructl` still covers it) |
 | In-House Apps | not planned |
 
 ## The line moved in 0.2.0
