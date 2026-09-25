@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.4.1] - 2026-09-25
+
 ### Fixed
 
 - **`custom_apps.create` and `.update` now wait out the 503 Iru returns while it finalizes a
