@@ -3,6 +3,8 @@
 from enum import StrEnum
 from pathlib import PurePosixPath
 
+from pydantic import Field
+
 from .base import BlankAsNone, Model
 
 
@@ -90,3 +92,26 @@ class CustomApp(Model):
         :rtype: str
         """
         return PurePosixPath(self.file_key).name if self.file_key else ""
+
+
+class CustomAppUpload(Model):
+    """
+    The presigned POST handed back by ``/library/custom-apps/upload``.
+
+    The installer does not travel through the Iru API. This endpoint returns a short-lived
+    policy for object storage; the bytes go there, and only :attr:`file_key` comes back to
+    Iru on the create or update that follows.
+
+    :ivar name: The filename registered with the endpoint.
+    :ivar expires: When the policy stops being accepted.
+    :ivar post_url: The object store's URL, on a host that is not the tenant's. It must be
+        posted to without Iru credentials -- see :meth:`~irusdk.services.custom_apps.CustomAppsAPI.upload`.
+    :ivar post_data: The policy fields, which must be sent as form parts ahead of the file.
+    :ivar file_key: The object path to hand back to Iru once the bytes are stored.
+    """
+
+    name: str | None = None
+    expires: str | None = None
+    post_url: str | None = None
+    post_data: dict[str, str] = Field(default_factory=dict)
+    file_key: str | None = None

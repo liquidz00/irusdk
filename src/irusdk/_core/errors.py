@@ -100,6 +100,17 @@ class PaginationError(IruError):
     default_message = "Pagination did not terminate"
 
 
+class PayloadTransferError(IruError):
+    """
+    Raised when an installer fails to reach object storage.
+
+    Distinct from :class:`APIResponseError` because the failing request went to the object
+    store rather than to Iru, so its status codes and body are the store's, not the tenant's.
+    """
+
+    default_message = "Failed to transfer the installer to object storage"
+
+
 def extract_error_detail(body: Any) -> str | None:
     """
     Pull a human-readable detail string out of an error response body.

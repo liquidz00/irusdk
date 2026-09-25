@@ -9,6 +9,7 @@ from ._core.errors import (
     IruError,
     NotFoundError,
     PaginationError,
+    PayloadTransferError,
     RateLimitError,
     ServerError,
 )
@@ -27,6 +28,7 @@ __all__ = [
     "NotFoundError",
     "Page",
     "PaginationError",
+    "PayloadTransferError",
     "RateLimitError",
     "Region",
     "ServerError",

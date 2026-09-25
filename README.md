@@ -113,7 +113,7 @@ blueprints — and, from 0.2.0, **library-content authoring**.
 | Custom Scripts | available |
 | Custom Profiles | available |
 | Self Service categories | available (read-only; Iru exposes no write) |
-| Custom Apps | read-only (upload needs a presigned POST; `iructl` still covers it) |
+| Custom Apps | list, get, create, update, and installer upload |
 | In-House Apps | not planned |
 
 Earlier releases left authoring to [`iructl`](https://github.com/kandji-inc/iructl) on the
