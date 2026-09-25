@@ -10,6 +10,7 @@ from ._core.urls import Region, resolve_base_url
 from ._transport.async_transport import AsyncTransport
 from ._transport.sync_transport import SyncTransport
 from .services.blueprints import AsyncBlueprintsAPI, BlueprintsAPI
+from .services.custom_apps import AsyncCustomAppsAPI, CustomAppsAPI
 from .services.custom_profiles import AsyncCustomProfilesAPI, CustomProfilesAPI
 from .services.custom_scripts import AsyncCustomScriptsAPI, CustomScriptsAPI
 from .services.devices import AsyncDevicesAPI, DevicesAPI
@@ -53,6 +54,7 @@ class IruClient:
     :ivar tags: Tag operations.
     :ivar custom_scripts: Custom script operations.
     :ivar custom_profiles: Custom profile operations.
+    :ivar custom_apps: Custom app operations (read-only).
     :ivar self_service: Self Service operations.
     """
 
@@ -77,6 +79,7 @@ class IruClient:
         self.tags = TagsAPI(self._transport)
         self.custom_scripts = CustomScriptsAPI(self._transport)
         self.custom_profiles = CustomProfilesAPI(self._transport)
+        self.custom_apps = CustomAppsAPI(self._transport)
         self.self_service = SelfServiceAPI(self._transport)
 
     def close(self) -> None:
@@ -129,6 +132,7 @@ class AsyncIruClient:
     :ivar tags: Tag operations.
     :ivar custom_scripts: Custom script operations.
     :ivar custom_profiles: Custom profile operations.
+    :ivar custom_apps: Custom app operations (read-only).
     :ivar self_service: Self Service operations.
     """
 
@@ -153,6 +157,7 @@ class AsyncIruClient:
         self.tags = AsyncTagsAPI(self._transport)
         self.custom_scripts = AsyncCustomScriptsAPI(self._transport)
         self.custom_profiles = AsyncCustomProfilesAPI(self._transport)
+        self.custom_apps = AsyncCustomAppsAPI(self._transport)
         self.self_service = AsyncSelfServiceAPI(self._transport)
 
     async def aclose(self) -> None:
