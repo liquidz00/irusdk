@@ -9,7 +9,7 @@ users, and tags that organise them.
 
 > [!IMPORTANT]
 > Library authoring arrived in 0.2.0 and is landing one resource at a time — Custom Scripts,
-> Custom Profiles and Self Service categories today, Custom Apps next. Until then
+> Custom Profiles and Self Service categories today, Custom Apps readable but not writable. Until then
 > [`iructl`](https://github.com/kandji-inc/iructl) still covers what this SDK does not, and the two
 > compose. See [Scope](#scope) below.
 
@@ -113,7 +113,7 @@ blueprints — and, from 0.2.0, **library-content authoring**.
 | Custom Scripts | available |
 | Custom Profiles | available |
 | Self Service categories | available (read-only; Iru exposes no write) |
-| Custom Apps | planned |
+| Custom Apps | read-only (upload needs a presigned POST; `iructl` still covers it) |
 | In-House Apps | not planned |
 
 Earlier releases left authoring to [`iructl`](https://github.com/kandji-inc/iructl) on the

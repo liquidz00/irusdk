@@ -7,6 +7,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`custom_apps`** — read-only: `list` and `get`, sync and async. Model verified field by
+  field against a live tenant; all six apps parse with `unknown_fields` empty.
+- **Model** `CustomApp`, plus the `InstallType` and `InstallEnforcement` enums, re-exported
+  from `irusdk.models`. `audit_script`, `preinstall_script`, `postinstall_script` and
+  `unzip_location` are blank-string fields collapsed to `None`; an app with no audit script
+  is ordinary. `self_service_category_id` and `self_service_recommended` are absent keys
+  rather than nulls unless the app is offered in Self Service.
+- `CustomApp.file_basename` strips the storage prefix from `file_key`. The basename still
+  carries the token Iru appends on upload, so it changes when the same binary is uploaded
+  again; `sha256` is what identifies the content.
+
+### Notes
+
+- Creating and updating apps stays with `iructl`. The installer goes to object storage
+  through a presigned POST, which is a larger piece of surface than the rest of this package
+  and has no caller here yet.
+
 ## [v0.2.0] - 2026-09-19
 
 ### Added
