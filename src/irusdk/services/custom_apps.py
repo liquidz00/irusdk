@@ -1,11 +1,13 @@
 """Custom app operations."""
 
+import asyncio
+import time
 from pathlib import Path
-from typing import Any, AsyncIterator, Iterator
+from typing import Any, AsyncIterator, Callable, Iterator
 
 import httpx
 
-from .._core.errors import PayloadTransferError
+from .._core.errors import PayloadTransferError, ServerError
 from .._endpoints import custom_apps as endpoints
 from .._transport._common import build_verify
 from .._transport.async_transport import AsyncTransport
@@ -21,6 +23,14 @@ _OCTET_STREAM = "application/octet-stream"
 # The client default governs an API call, not a multi-hundred-megabyte body. `write=None`
 # lets a slow link finish rather than failing an upload most of the way through.
 _UPLOAD_TIMEOUT = httpx.Timeout(connect=30.0, read=300.0, write=None, pool=30.0)
+
+# Iru answers 503 "The upload is still being processed" while it finalizes a freshly uploaded
+# installer, so the create or update that follows an upload has to wait it out. The transport
+# will not: a POST is not idempotent, so it is never retried. Only this status is waited on,
+# and only here -- retrying a create on a dropped connection could make two apps.
+_PROCESSING_STATUS = 503
+_PROCESSING_BUDGET = 300.0
+_PROCESSING_BACKOFF_CAP = 30.0
 
 
 def _storage_kwargs(transport: SyncTransport | AsyncTransport) -> dict[str, Any]:
@@ -47,6 +57,17 @@ def _upload_parts(reservation: CustomAppUpload, file: Path, stream: Any) -> dict
         "data": reservation.post_data,
         "files": {"file": (file.name, stream, _OCTET_STREAM)},
     }
+
+
+def _wait_for(exc: ServerError, waited: float, attempt: int) -> float:
+    """How long to wait before retrying a write Iru is still finalizing.
+
+    :raises ServerError: When the failure is anything else, or the budget is spent.
+    :rtype: float
+    """
+    if getattr(exc, "status_code", None) != _PROCESSING_STATUS or waited >= _PROCESSING_BUDGET:
+        raise exc
+    return min(2.0**attempt, _PROCESSING_BACKOFF_CAP)
 
 
 def _transferred(reservation: CustomAppUpload, response: httpx.Response) -> str:
@@ -116,6 +137,18 @@ class CustomAppsAPI:
             )
         return _transferred(reservation, response)
 
+    def _while_processing(self, send: Callable[[], CustomApp]) -> CustomApp:
+        """Send a write, waiting out the 503 Iru returns while it finalizes an upload."""
+        waited, attempt = 0.0, 0
+        while True:
+            try:
+                return send()
+            except ServerError as exc:
+                delay = _wait_for(exc, waited, attempt)
+                time.sleep(delay)
+                waited += delay
+                attempt += 1
+
     def create(self, **fields: Any) -> CustomApp:
         """
         Create a custom app around an installer already in object storage.
@@ -126,7 +159,9 @@ class CustomAppsAPI:
         :raises ValueError: When the field combination is one Iru rejects.
         :rtype: CustomApp
         """
-        return self._transport.send(endpoints.create_custom_app(**fields))
+        return self._while_processing(
+            lambda: self._transport.send(endpoints.create_custom_app(**fields))
+        )
 
     def update(self, app_id: str, **fields: Any) -> CustomApp:
         """
@@ -140,7 +175,9 @@ class CustomAppsAPI:
         :raises ValueError: When the field combination is one Iru rejects.
         :rtype: CustomApp
         """
-        return self._transport.send(endpoints.update_custom_app(app_id, **fields))
+        return self._while_processing(
+            lambda: self._transport.send(endpoints.update_custom_app(app_id, **fields))
+        )
 
 
 class AsyncCustomAppsAPI:
@@ -172,10 +209,26 @@ class AsyncCustomAppsAPI:
                 )
         return _transferred(reservation, response)
 
+    async def _while_processing(self, send: Callable[[], Any]) -> CustomApp:
+        """Send a write, waiting out the 503 Iru returns while it finalizes an upload."""
+        waited, attempt = 0.0, 0
+        while True:
+            try:
+                return await send()
+            except ServerError as exc:
+                delay = _wait_for(exc, waited, attempt)
+                await asyncio.sleep(delay)
+                waited += delay
+                attempt += 1
+
     @copy_doc(CustomAppsAPI.create)
     async def create(self, **fields: Any) -> CustomApp:
-        return await self._transport.send(endpoints.create_custom_app(**fields))
+        return await self._while_processing(
+            lambda: self._transport.send(endpoints.create_custom_app(**fields))
+        )
 
     @copy_doc(CustomAppsAPI.update)
     async def update(self, app_id: str, **fields: Any) -> CustomApp:
-        return await self._transport.send(endpoints.update_custom_app(app_id, **fields))
+        return await self._while_processing(
+            lambda: self._transport.send(endpoints.update_custom_app(app_id, **fields))
+        )

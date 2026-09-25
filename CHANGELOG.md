@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`custom_apps.create` and `.update` now wait out the 503 Iru returns while it finalizes a
+  freshly uploaded installer** ("The upload is still being processed"). Without this, every
+  create straight after an `upload` failed: the transport does not retry a POST, because a
+  POST is not idempotent. Only that one status is waited on, and only for these two calls --
+  retrying a create on a dropped connection could make two apps. Exponential backoff capped
+  at 30s within a 5-minute budget, matching what the endpoint needs. Found against a live
+  tenant; mocks had not covered it.
+
 ## [v0.4.0] - 2026-09-25
 
 ### Added
