@@ -10,13 +10,17 @@ import pytest
 import respx
 
 from conftest import BASE_URL, TOKEN, ClientAdapter
-from irusdk import PayloadTransferError
+from irusdk import PayloadTransferError, ServerError
 
 API = f"{BASE_URL}/api/v1"
 APPS = f"{API}/library/custom-apps"
 STORE = "https://ipaapps-uploads.kandji.io/"
 
 FILE_KEY = "tenants/t-1/library/custom-apps/uploads/Thing-2.4_a1b2c3d4.pkg"
+
+
+async def _no_sleep(_seconds: float) -> None:
+    """Stand-in for asyncio.sleep, so the backoff costs no wall clock in tests."""
 
 
 def _reservation(**overrides: object) -> dict:
@@ -230,3 +234,54 @@ def test_a_partial_update_does_not_guess_the_enforcement_it_was_not_given(
     any_client.call(
         any_client.client.custom_apps.update, "app-1", audit_script="#!/bin/bash\nexit 1"
     )
+
+
+@respx.mock
+def test_a_create_waits_out_the_upload_still_processing(
+    any_client: ClientAdapter, monkeypatch
+) -> None:
+    """Iru answers 503 while it finalizes a freshly uploaded installer.
+
+    The transport will not retry this by itself -- a POST is not idempotent -- so without the
+    wait, every create straight after an upload fails. Found against a live tenant.
+    """
+    monkeypatch.setattr("irusdk.services.custom_apps.time.sleep", lambda _: None)
+    monkeypatch.setattr("asyncio.sleep", _no_sleep)
+    respx.post(APPS).mock(
+        side_effect=[
+            httpx.Response(503, json={"detail": "The upload is still being processed."}),
+            httpx.Response(503, json={"detail": "The upload is still being processed."}),
+            httpx.Response(201, json=_created()),
+        ]
+    )
+
+    app = any_client.call(any_client.client.custom_apps.create, name="Thing", file_key=FILE_KEY)
+
+    assert app.id == "app-new"
+
+
+@respx.mock
+def test_a_real_server_error_is_not_waited_out(any_client: ClientAdapter, monkeypatch) -> None:
+    """Only the finalizing 503 is waited on; anything else is the caller's problem now."""
+    monkeypatch.setattr("irusdk.services.custom_apps.time.sleep", lambda _: None)
+    monkeypatch.setattr("asyncio.sleep", _no_sleep)
+    respx.post(APPS).mock(return_value=httpx.Response(500, json={"detail": "boom"}))
+
+    with pytest.raises(ServerError):
+        any_client.call(any_client.client.custom_apps.create, name="Thing", file_key=FILE_KEY)
+
+
+@respx.mock
+def test_an_update_waits_the_same_way(any_client: ClientAdapter, monkeypatch) -> None:
+    monkeypatch.setattr("irusdk.services.custom_apps.time.sleep", lambda _: None)
+    monkeypatch.setattr("asyncio.sleep", _no_sleep)
+    respx.patch(f"{APPS}/app-1").mock(
+        side_effect=[
+            httpx.Response(503, json={"detail": "The upload is still being processed."}),
+            httpx.Response(200, json=_created(id="app-1")),
+        ]
+    )
+
+    app = any_client.call(any_client.client.custom_apps.update, "app-1", active=True)
+
+    assert app.id == "app-1"
