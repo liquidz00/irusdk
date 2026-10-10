@@ -4,20 +4,21 @@ A Python SDK and thin CLI for querying and acting on an Iru (formerly Kandji) fl
 
 ## Scope — read before adding endpoints
 
-This SDK covers the **fleet** surface: devices, device actions, device details, Prism, users, tags,
-and blueprints as fleet context.
+This SDK covers the Iru API in two halves:
 
-It deliberately does **not** author library content — Custom Apps, Custom Scripts, Custom Profiles,
-In-House Apps. Iru ships `iructl` (https://github.com/kandji-inc/iructl) for that, and it does the
-job better: local repo sync, YAML/plist round-tripping, presigned S3 package upload. Those services
-existed here briefly and were removed on purpose.
+- **Fleet:** devices, device actions, device details, Prism, users, tags, and blueprints.
+- **Library content:** Custom Scripts, Custom Profiles, and Custom Apps with installer upload, plus
+  Self Service categories, read-only because Iru exposes no write. In-House Apps are not planned.
 
-**Do not re-add them.** If a task seems to call for `/api/v1/library/custom-*` write operations,
-that is a signal the task belongs to `iructl`, not here. Read-only library shapes stay (see
-`models/library.py::LibraryItem`) because blueprints and devices report what is assigned to them.
+Library authoring was left to `iructl` before 0.2.0 and moved here on purpose; the README's Scope
+section has the reasoning and the durability cost. The seam that matters now is the filesystem:
+this SDK owns the API and has no opinion about a repository. Repo sync, YAML or plist
+round-tripping, and deciding which fields a human owns belong to whatever tool owns the repository.
+Do not add them here.
 
-Blueprints are in scope: every device carries `blueprint_id`/`blueprint_name` and blueprint is a
-primary device filter, so listing and reading them is fleet context, not content authoring.
+Blueprints are fleet context and a content target at once. `assign_library_item` and
+`remove_library_item` attach an item to a blueprint or to one node of an assignment map; reconciling
+a declared set of assignments is a repository tool's job.
 
 ## API facts
 
@@ -77,6 +78,10 @@ The API uses several envelope shapes; each maps to a strategy in `_core/paginati
 | `client.blueprints` | `BlueprintsAPI` / `AsyncBlueprintsAPI` | Count envelope; has `pages()` |
 | `client.users` | `UsersAPI` / `AsyncUsersAPI` | Cursor paging, `sizePerPage` not `limit` |
 | `client.tags` | `TagsAPI` / `AsyncTagsAPI` | Count envelope, but no documented page param |
+| `client.custom_scripts` | `CustomScriptsAPI` / `AsyncCustomScriptsAPI` | Count envelope, `page` param |
+| `client.custom_profiles` | `CustomProfilesAPI` / `AsyncCustomProfilesAPI` | Count envelope, `page` param; payload sent multipart |
+| `client.custom_apps` | `CustomAppsAPI` / `AsyncCustomAppsAPI` | Count envelope, `page` param; `upload` goes to object storage, not the tenant |
+| `client.self_service` | `SelfServiceAPI` / `AsyncSelfServiceAPI` | `categories()` only |
 
 `pages()` exists only where volume warrants it — currently devices and blueprints.
 
