@@ -8,10 +8,10 @@ users, and tags that organise them.
 > Kandji is now Iru. The API still serves from `*.api.kandji.io`, and this SDK follows suit.
 
 > [!IMPORTANT]
-> Library authoring arrived in 0.2.0 and is landing one resource at a time — Custom Scripts,
-> Custom Profiles and Self Service categories today, Custom Apps readable but not writable. Until then
-> [`iructl`](https://github.com/kandji-inc/iructl) still covers what this SDK does not, and the two
-> compose. See [Scope](#scope) below.
+> Library authoring arrived in 0.2.0: Custom Scripts, Custom Profiles and Custom Apps are
+> writable, and Self Service categories readable. In-House Apps are not covered;
+> [`iructl`](https://github.com/kandji-inc/iructl) still is, and the two compose. See
+> [Scope](#scope) below.
 
 ## Features
 
@@ -73,9 +73,13 @@ asyncio.run(main())
 | Attribute | Endpoints |
 | --- | --- |
 | `client.devices` | list, pages, get, update, delete, details |
-| `client.blueprints` | list, pages, get, create, update, delete, library items, templates |
+| `client.blueprints` | list, pages, get, create, update, delete, library items, assign and remove library items (map nodes included), templates |
 | `client.users` | list, get, delete |
 | `client.tags` | list, create, update, delete |
+| `client.custom_scripts` | list, get, create, update, delete |
+| `client.custom_profiles` | list, get, create, update, delete |
+| `client.custom_apps` | list, get, create, update, installer upload |
+| `client.self_service` | categories |
 
 ### Pagination
 
@@ -133,8 +137,9 @@ still the shorter path.
 
 | Task | Tool |
 | --- | --- |
-| Upload a Custom App package | `iructl` |
-| Declaratively assign library items to blueprints | `iructl` |
+| Upload a Custom App package | `irusdk` |
+| Assign a library item to a blueprint or map node | `irusdk` |
+| Declaratively reconcile blueprint assignments from a repository | `iructl`, or your own tooling |
 | Read or author Custom Scripts and Profiles | `irusdk` |
 | Find every Mac on an outdated OS | `irusdk` |
 | Report FileVault or compliance state across the fleet | `irusdk` |

@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`blueprints.assign_library_item` takes `assignment_node_id`**, so an item can be assigned
+  to one node of an assignment map. Iru requires it for a map with conditional logic and
+  refuses it for a classic blueprint; it stays optional and keyword-only, so existing calls
+  are unchanged.
+- **`blueprints.remove_library_item`**, sync and async, with the same arguments. Iru's
+  OpenAPI spec omits this endpoint and its Postman collection gives it the assign path; the
+  real route, `remove-library-item`, was confirmed against a live tenant.
+
+### Changed
+
+- `assign_library_item` returns the identifiers of the library items now assigned to the
+  blueprint, which Iru already sent back, instead of `None`.
+- The README, docs and `CLAUDE.md` no longer describe Custom Apps as unwritable or library
+  authoring as out of scope; both changed in 0.2.0 through 0.4.0.
+
+### Fixed
+
+- **`custom_apps.create` refuses `continuously_enforce` without an `audit_script`**, raising a
+  `ValueError` that names the field. Iru answers that combination with a 400, and since
+  `continuously_enforce` is the default, a minimal `create` always hit it. Checked on create
+  only: on an update Iru still holds the script it was given before. Found against a live
+  tenant.
+
 ## [v0.4.1] - 2026-09-25
 
 ### Fixed

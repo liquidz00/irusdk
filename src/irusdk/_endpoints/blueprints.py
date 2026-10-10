@@ -68,12 +68,27 @@ def list_blueprint_library_items(blueprint_id: str) -> RequestSpec[LibraryItem]:
     )
 
 
-def assign_library_item(blueprint_id: str, library_item_id: str) -> RequestSpec[None]:
-    """Build the spec for assigning a library item to a blueprint."""
+def assign_library_item(
+    blueprint_id: str, library_item_id: str, *, assignment_node_id: str | None = None
+) -> RequestSpec[list[str]]:
+    """Build the spec for assigning a library item to a blueprint or one of a map's nodes."""
     return RequestSpec(
         method="POST",
         path=f"{_BLUEPRINTS}/{blueprint_id}/assign-library-item",
-        json={"library_item_id": library_item_id},
+        json=drop_none(library_item_id=library_item_id, assignment_node_id=assignment_node_id),
+    )
+
+
+def remove_library_item(
+    blueprint_id: str, library_item_id: str, *, assignment_node_id: str | None = None
+) -> RequestSpec[list[str]]:
+    """Build the spec for removing a library item from a blueprint or one of a map's nodes."""
+    # Missing from Iru's OpenAPI spec, and its Postman collection gives the assign path; the
+    # route was confirmed live, answering 403 rather than 404 to a token without the permission.
+    return RequestSpec(
+        method="POST",
+        path=f"{_BLUEPRINTS}/{blueprint_id}/remove-library-item",
+        json=drop_none(library_item_id=library_item_id, assignment_node_id=assignment_node_id),
     )
 
 

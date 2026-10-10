@@ -63,16 +63,17 @@ for device in client.devices.list(blueprint_id="ab102b9d-..."):
     ...
 ```
 
-Blueprint listing, reading, and membership live here. Declarative assignment of library items to
-blueprints — the part that belongs to a repository's sync step — does not, and is left to whatever
-tooling owns your repository.
+Blueprint listing, reading, and membership live here, and so do the two calls that change
+membership: `assign_library_item` and `remove_library_item`, which target a whole blueprint or one
+node of an assignment map. Declarative assignment — reconciling a set of assignments a repository
+declares — does not, and is left to whatever tooling owns your repository.
 
 ## Using both
 
-They still compose, and while authoring support is incomplete there is good reason to:
+They still compose:
 
 ```console
-# iructl for what irusdk does not author yet
+# iructl, where it already owns a repository
 $ iructl app pull --all
 ```
 

@@ -80,6 +80,51 @@ def test_blueprint_library_items_unwraps_the_envelope(any_client: ClientAdapter)
 
 
 @respx.mock
+def test_assign_to_a_map_node_sends_the_node_and_returns_the_ids(any_client: ClientAdapter) -> None:
+    route = respx.post(f"{API}/blueprints/bp-1/assign-library-item").mock(
+        return_value=httpx.Response(200, json=["li-1", "li-2"])
+    )
+
+    assigned = any_client.call(
+        any_client.client.blueprints.assign_library_item, "bp-1", "li-2", assignment_node_id="n-7"
+    )
+
+    assert assigned == ["li-1", "li-2"]
+    assert json.loads(route.calls.last.request.read()) == {
+        "library_item_id": "li-2",
+        "assignment_node_id": "n-7",
+    }
+
+
+@respx.mock
+def test_assign_without_a_node_sends_no_node_key(any_client: ClientAdapter) -> None:
+    route = respx.post(f"{API}/blueprints/bp-1/assign-library-item").mock(
+        return_value=httpx.Response(200, json=["li-2"])
+    )
+
+    any_client.call(any_client.client.blueprints.assign_library_item, "bp-1", "li-2")
+
+    assert json.loads(route.calls.last.request.read()) == {"library_item_id": "li-2"}
+
+
+@respx.mock
+def test_remove_posts_to_its_own_route(any_client: ClientAdapter) -> None:
+    route = respx.post(f"{API}/blueprints/bp-1/remove-library-item").mock(
+        return_value=httpx.Response(200, json=["li-1"])
+    )
+
+    remaining = any_client.call(
+        any_client.client.blueprints.remove_library_item, "bp-1", "li-2", assignment_node_id="n-7"
+    )
+
+    assert remaining == ["li-1"]
+    assert json.loads(route.calls.last.request.read()) == {
+        "library_item_id": "li-2",
+        "assignment_node_id": "n-7",
+    }
+
+
+@respx.mock
 def test_users_follow_the_cursor(any_client: ClientAdapter) -> None:
     first = {
         "next": f"{API}/users?cursor=PAGE2",
