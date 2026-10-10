@@ -122,16 +122,54 @@ class BlueprintsAPI:
         """
         return self._transport.send(endpoints.list_blueprint_library_items(blueprint_id))
 
-    def assign_library_item(self, blueprint_id: str, library_item_id: str) -> None:
+    def assign_library_item(
+        self, blueprint_id: str, library_item_id: str, *, assignment_node_id: str | None = None
+    ) -> Sequence[str]:
         """
-        Assign a library item to a blueprint.
+        Assign a library item to a blueprint, or to one node of an assignment map.
+
+        An assignment map with conditional logic needs ``assignment_node_id``, and a classic
+        blueprint refuses one. Iru answers 400 when the item is already there.
 
         :param blueprint_id: The blueprint's identifier.
         :type blueprint_id: str
         :param library_item_id: The library item's identifier.
         :type library_item_id: str
+        :param assignment_node_id: The map node to assign to. Iru shows node ids in the console's
+            map view while the Option key is held, and a node keeps its id for its lifetime.
+        :type assignment_node_id: str | None
+        :return: The identifiers of the library items now assigned to the blueprint.
+        :rtype: Sequence[str]
         """
-        self._transport.send(endpoints.assign_library_item(blueprint_id, library_item_id))
+        return self._transport.send(
+            endpoints.assign_library_item(
+                blueprint_id, library_item_id, assignment_node_id=assignment_node_id
+            )
+        )
+
+    def remove_library_item(
+        self, blueprint_id: str, library_item_id: str, *, assignment_node_id: str | None = None
+    ) -> Sequence[str]:
+        """
+        Remove a library item from a blueprint, or from one node of an assignment map.
+
+        Takes ``assignment_node_id`` under the same rules as :meth:`assign_library_item`. Iru
+        answers 400 when the item is not there.
+
+        :param blueprint_id: The blueprint's identifier.
+        :type blueprint_id: str
+        :param library_item_id: The library item's identifier.
+        :type library_item_id: str
+        :param assignment_node_id: The map node to remove it from.
+        :type assignment_node_id: str | None
+        :return: The identifiers of the library items still assigned to the blueprint.
+        :rtype: Sequence[str]
+        """
+        return self._transport.send(
+            endpoints.remove_library_item(
+                blueprint_id, library_item_id, assignment_node_id=assignment_node_id
+            )
+        )
 
     def templates(self, *, page_size: int = endpoints.DEFAULT_PAGE_SIZE) -> Iterator[Blueprint]:
         """
@@ -199,8 +237,24 @@ class AsyncBlueprintsAPI:
         return await self._transport.send(endpoints.list_blueprint_library_items(blueprint_id))
 
     @copy_doc(BlueprintsAPI.assign_library_item)
-    async def assign_library_item(self, blueprint_id: str, library_item_id: str) -> None:
-        await self._transport.send(endpoints.assign_library_item(blueprint_id, library_item_id))
+    async def assign_library_item(
+        self, blueprint_id: str, library_item_id: str, *, assignment_node_id: str | None = None
+    ) -> Sequence[str]:
+        return await self._transport.send(
+            endpoints.assign_library_item(
+                blueprint_id, library_item_id, assignment_node_id=assignment_node_id
+            )
+        )
+
+    @copy_doc(BlueprintsAPI.remove_library_item)
+    async def remove_library_item(
+        self, blueprint_id: str, library_item_id: str, *, assignment_node_id: str | None = None
+    ) -> Sequence[str]:
+        return await self._transport.send(
+            endpoints.remove_library_item(
+                blueprint_id, library_item_id, assignment_node_id=assignment_node_id
+            )
+        )
 
     @copy_doc(BlueprintsAPI.templates)
     def templates(
