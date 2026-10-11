@@ -8,10 +8,10 @@ Kandji is now Iru. The API still serves from `*.api.kandji.io`, and this SDK fol
 :::
 
 :::{important}
-Library authoring arrived in 0.2.0 and is landing one resource at a time — Custom Scripts,
-Custom Profiles and Self Service categories today, Custom Apps next. Until then
-[`iructl`](https://github.com/kandji-inc/iructl) still covers what this SDK does not, and the two
-compose. See {doc}`guide/scope` for where the line now falls and what it costs.
+Library authoring arrived in 0.2.0: Custom Scripts, Custom Profiles and Custom Apps are writable,
+and Self Service categories readable. In-House Apps are not covered;
+[`iructl`](https://github.com/kandji-inc/iructl) still is, and the two compose. See
+{doc}`guide/scope` for where the line now falls and what it costs.
 :::
 
 ::::{grid} 1 1 2 2

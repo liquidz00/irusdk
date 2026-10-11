@@ -18,6 +18,9 @@ STORE = "https://ipaapps-uploads.kandji.io/"
 
 FILE_KEY = "tenants/t-1/library/custom-apps/uploads/Thing-2.4_a1b2c3d4.pkg"
 
+# `create` defaults to continuously_enforce, which Iru refuses without one of these.
+AUDIT = "#!/bin/bash\nexit 0"
+
 
 async def _no_sleep(_seconds: float) -> None:
     """Stand-in for asyncio.sleep, so the backoff costs no wall clock in tests."""
@@ -146,17 +149,23 @@ def test_upload_registers_an_overridden_name(any_client: ClientAdapter, installe
 
 
 @respx.mock
-def test_create_sends_the_key_and_defaults_the_scripts_to_blank(
+def test_create_sends_the_key_and_blanks_the_scripts_not_supplied(
     any_client: ClientAdapter,
 ) -> None:
     create = respx.post(APPS).mock(return_value=httpx.Response(201, json=_created()))
 
-    app = any_client.call(any_client.client.custom_apps.create, name="Thing", file_key=FILE_KEY)
+    app = any_client.call(
+        any_client.client.custom_apps.create,
+        name="Thing",
+        file_key=FILE_KEY,
+        audit_script=AUDIT,
+    )
 
     sent = create.calls.last.request.read()
     assert app.id == "app-new"
     assert b'"file_key":' in sent
-    assert b'"audit_script":""' in sent
+    assert b'"preinstall_script":""' in sent
+    assert b'"postinstall_script":""' in sent
 
 
 @respx.mock
@@ -201,6 +210,7 @@ def test_a_zip_app_needs_an_unzip_location(any_client: ClientAdapter) -> None:
             name="Thing",
             file_key=FILE_KEY,
             install_type="zip",
+            audit_script=AUDIT,
         )
 
 
@@ -221,6 +231,7 @@ def test_self_service_needs_a_category(any_client: ClientAdapter) -> None:
             name="Thing",
             file_key=FILE_KEY,
             show_in_self_service=True,
+            audit_script=AUDIT,
         )
 
 
@@ -255,7 +266,12 @@ def test_a_create_waits_out_the_upload_still_processing(
         ]
     )
 
-    app = any_client.call(any_client.client.custom_apps.create, name="Thing", file_key=FILE_KEY)
+    app = any_client.call(
+        any_client.client.custom_apps.create,
+        name="Thing",
+        file_key=FILE_KEY,
+        audit_script=AUDIT,
+    )
 
     assert app.id == "app-new"
 
@@ -268,7 +284,12 @@ def test_a_real_server_error_is_not_waited_out(any_client: ClientAdapter, monkey
     respx.post(APPS).mock(return_value=httpx.Response(500, json={"detail": "boom"}))
 
     with pytest.raises(ServerError):
-        any_client.call(any_client.client.custom_apps.create, name="Thing", file_key=FILE_KEY)
+        any_client.call(
+            any_client.client.custom_apps.create,
+            name="Thing",
+            file_key=FILE_KEY,
+            audit_script=AUDIT,
+        )
 
 
 @respx.mock
@@ -285,3 +306,31 @@ def test_an_update_waits_the_same_way(any_client: ClientAdapter, monkeypatch) ->
     app = any_client.call(any_client.client.custom_apps.update, "app-1", active=True)
 
     assert app.id == "app-1"
+
+
+def test_continuous_enforcement_needs_an_audit_script(any_client: ClientAdapter) -> None:
+    """Iru answers {"audit_script": ["Required when choosing continuously_enforce"]}.
+
+    The converse of the check above, and the one that actually bites: `continuously_enforce`
+    is the sensible default for a managed app, so an app scaffolded without an audit script
+    fails at create time. Found against a live tenant.
+    """
+    with pytest.raises(ValueError, match="requires a non-empty audit_script"):
+        any_client.call(
+            any_client.client.custom_apps.create,
+            name="Thing",
+            file_key=FILE_KEY,
+            install_enforcement="continuously_enforce",
+        )
+
+
+@respx.mock
+def test_an_update_does_not_demand_an_audit_script(any_client: ClientAdapter) -> None:
+    """Iru still holds the script it was given at create; an update need not resend it."""
+    respx.patch(f"{APPS}/app-1").mock(return_value=httpx.Response(200, json=_created(id="app-1")))
+
+    any_client.call(
+        any_client.client.custom_apps.update,
+        "app-1",
+        install_enforcement="continuously_enforce",
+    )

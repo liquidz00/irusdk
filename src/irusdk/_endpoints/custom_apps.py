@@ -36,6 +36,7 @@ def get_custom_app(app_id: str) -> RequestSpec[CustomApp]:
 
 def _validated(
     *,
+    creating: bool = False,
     install_type: str | None,
     install_enforcement: str | None,
     unzip_location: str | None,
@@ -58,6 +59,14 @@ def _validated(
     if install_enforcement is not None:
         if audit_script and install_enforcement != InstallEnforcement.CONTINUOUSLY_ENFORCE:
             raise ValueError("audit_script requires install_enforcement 'continuously_enforce'")
+        # The converse, which Iru enforces too: it answers
+        # {"audit_script": ["Required when choosing continuously_enforce"]}. Only checked on a
+        # create -- on an update Iru still holds whatever script it was given before.
+        if creating and not audit_script:
+            if install_enforcement == InstallEnforcement.CONTINUOUSLY_ENFORCE:
+                raise ValueError(
+                    "install_enforcement 'continuously_enforce' requires a non-empty audit_script"
+                )
         if install_enforcement == InstallEnforcement.NO_ENFORCEMENT and not show_in_self_service:
             raise ValueError(
                 "install_enforcement 'no_enforcement' requires show_in_self_service=True"
@@ -113,6 +122,7 @@ def create_custom_app(
         "active": active,
         "show_in_self_service": show_in_self_service,
         **_validated(
+            creating=True,
             install_type=install_type,
             install_enforcement=install_enforcement,
             unzip_location=unzip_location,
