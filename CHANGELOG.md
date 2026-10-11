@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.4.2] - 2026-10-11
+
 ### Added
 
 - **`blueprints.assign_library_item` takes `assignment_node_id`**, so an item can be assigned
